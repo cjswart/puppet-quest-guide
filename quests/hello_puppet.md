@@ -138,7 +138,7 @@ resources directly.
 <div class = "lvm-task-number"><p>Task 2:</p></div>
 
 **username: learning**  
-**password: puppet**
+**password: puppet**  
 Using the following command, connect to the system where the agent was just installed. Enter the password `puppet` when prompted.
 
     ssh learning@hello.puppet.vm
