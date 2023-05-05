@@ -99,7 +99,9 @@ the Puppetfile and code management workflow
 On your Puppet server, go ahead and use the `puppet module` tool to install this
 module.
 
-    puppet module install puppetlabs-postgresql
+    puppet module install puppetlabs-postgresql --version 5.12.1 --ignore-dependencies
+
+(Use --ignore-dependencies for backwards compatibilty)  
 
 To confirm that this command placed the module in your modulepath, take a look
 at the contents of your modules directory.
