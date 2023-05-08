@@ -134,6 +134,19 @@ mod "puppetlabs/concat", '5.3.0'
 mod "puppetlabs/stdlib", '5.2.0'
 ```
 
+you also have to add some modules for docker so the quest task can spin the containers up
+Finnaly your puppetfile looks like this: 
+```ruby
+mod "puppetlabs/postgresql", '5.12.1'
+mod "puppetlabs/apt", '6.3.0'
+mod "puppetlabs/translate", '1.1.0'
+mod "puppetlabs/concat", '5.3.0'
+mod "puppetlabs/stdlib", '5.2.0'
+mod "puppetlabs/docker", '3.10.0'
+mod 'dockeragent',
+  :git => 'https://github.com/cjswart/pltraining-dockeragent.git'
+```
+
 <div class = "lvm-task-number"><p>Task 4:</p></div>
 
 Stage your new Puppetfile to be committed:
@@ -192,6 +205,13 @@ production environment's modulepath.
   │ └── puppetlabs-translate (v1.1.0)
   └── puppetlabs-concat (v5.3.0)
 ```
+Check youre containers with:
+
+    docker ps
+     
+When you're containers are not ready start them up by restarting the quest, type the following command:
+
+    quest begin puppetfile
 
 <div class = "lvm-task-number"><p>Task 7:</p></div>
 
