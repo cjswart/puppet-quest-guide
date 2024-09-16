@@ -6,15 +6,9 @@
 
 - Learn how to use the `package`, `file` and `service` resources together to
   manage an application.
-- Use resource ordering metaparameters to define dependencies among resources. 
+- Use resource ordering metaparameters to define dependencies among resources.
 
-## Getting started
-
-When you're ready to get started, enter the following command:
-
-    quest begin package_file_service
-
-## The package, file, service pattern 
+## The package, file, service pattern
 
 In the previous quest, you created a simple module to manage the `cowsay` and
 `fortune-mod` packages. Often, however, you'll need Puppet to manage several
@@ -64,7 +58,7 @@ module will include two subdirectories: `manifests` and `files`.
 <div class = "lvm-task-number"><p>Task 2:</p></div>
 
 Open a new `init.pp` manifest to begin your definition of the main `pasture`
-class. 
+class.
 
     vim pasture/manifests/init.pp
 
@@ -94,19 +88,19 @@ Open your `site.pp` manifest.
 
     vim /etc/puppetlabs/code/environments/production/manifests/site.pp
 
-Create a new node definition for the `pasture.puppet.vm` node we've set up for
+Create a new node definition for the `node-x.internal.cloudapp.net` node we've set up for
 this quest. Include the `pasture` class you just wrote.
 
 ```puppet
-node 'pasture.puppet.vm' {
+node 'node-x.internal.cloudapp.net' {
   include pasture
 }
 ```
 <div class = "lvm-task-number"><p>Task 4:</p></div>
 
-Now connect to the `pasture.puppet.vm` node.
+Now connect to the `node-x.internal.cloudapp.net` node.
 
-    ssh learning@pasture.puppet.vm 
+    ssh adminuser@node-x.internal.cloudapp.net
 
 And trigger a Puppet agent run.
 
@@ -145,9 +139,9 @@ command to foreground the `pasture` process:
 
     fg
 
-Use the `CTRL-C` key combination to end the process:  
+Use the `CTRL-C` key combination to end the process:
 
-`CTRL-C`  
+`CTRL-C`
 
 If `fg` doesn't foreground the process, use the `ps` command to find the
 `pasture` process's PID and use the `kill` command with that PID (e.g. `kill
@@ -346,7 +340,7 @@ Relationship metaparameters take a [resource
 reference](https://puppet.com/docs/puppet/latest/lang_data_resource_reference.html)
 as a value. This resource reference points to another resource in your Puppet
 code. The syntax for a resource reference is the capitalized resource type,
-followed by square brackets containing the resource title: `Type['title']`. 
+followed by square brackets containing the resource title: `Type['title']`.
 
 <div class = "lvm-task-number"><p>Task 12:</p></div>
 
@@ -389,16 +383,16 @@ tool.
 
     puppet parser validate pasture/manifests/init.pp
 
-The `pasture.puppet.vm` node is still classified with this `pasture` class.
+The `node-x.internal.cloudapp.net` node is still classified with this `pasture` class.
 When you return to the node and do another puppet agent run, the server will
 pick up these added file and service resources and include them in the catalog
 it returns to the node.
 
 <div class = "lvm-task-number"><p>Task 13:</p></div>
 
-Go ahead and connect to `pasture.puppet.vm`.
+Go ahead and connect to `node-x.internal.cloudapp.net`.
 
-    ssh learning@pasture.puppet.vm
+    ssh adminuser@node-x.internal.cloudapp.net
 
 And trigger another Puppet agent run.
 
@@ -410,9 +404,9 @@ agent node.
     exit
 
 From the server, use the `curl` command to retrieve an ASCII elephant from
-port 4567 of the `pasture.puppet.vm` node.
+port 4567 of the `node-x.internal.cloudapp.net` node.
 
-    curl 'pasture.puppet.vm:4567/api/v1/cowsay?message=Hello!'
+    curl 'node-x.internal.cloudapp.net:4567/api/v1/cowsay?message=Hello!'
 
 ## Review
 

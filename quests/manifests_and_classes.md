@@ -6,7 +6,7 @@
 
 - Understand how Puppet code is organized into *classes*, contained within *manifest* files.
 - Learn how the module structure keeps your Puppet code organized in a way the Puppet server understands.
-- Create a new Puppet module to manage the `cowsay` and `fortune` packages. 
+- Create a new Puppet module to manage the `cowsay` and `fortune` packages.
 
 ## Getting started
 
@@ -28,10 +28,6 @@ In this quest, you'll learn how Puppet code is organized into *manifests*,
 you begin to work with more complex code management methods for your Puppet
 code.
 
-When you're ready to get started, enter the following command:
-
-    quest begin manifests_and_classes
-
 ### Manifests
 
 
@@ -48,9 +44,9 @@ Go ahead and ssh to the node we've created for this quest. Remember, the
 password for this and all the agent systems you'll use in this Quest Guide is
 `puppet`.
 
-    ssh learning@cowsay.puppet.vm
+    ssh adminuser@node-x
 
-Create a throw-away manifest in our `/tmp/` directory to see how this works. 
+Create a throw-away manifest in our `/tmp/` directory to see how this works.
 
     vim /tmp/hello.pp
 
@@ -65,10 +61,10 @@ notify { 'Hello Puppet!': }
 
 Rather than classifying this node on the Puppet server and triggering a Puppet agent
 run, apply this manifest directly with the `puppet apply` tool. You can use the
-`puppet apply` tool to test Puppet code in a manifest just like you can use the 
+`puppet apply` tool to test Puppet code in a manifest just like you can use the
 `puppet resource` tool to explore and modify resources directly.
 
-    sudo puppet apply /tmp/hello.pp 
+    sudo puppet apply /tmp/hello.pp
 
 Now you know how to save Puppet code to a file, but how do you bridge the gap
 between this saved Puppet code and the `site.pp` manifest where you define
@@ -112,7 +108,7 @@ Before you create a new manifest, you need to know where to keep it. For Puppet
 to find your code, you need to place it in a module directory in Puppet's
 *modulepath*.
 
-If you're still connected to `cowsay.puppet.vm`, disconnect to return to your
+If you're still connected to `node-x`, disconnect to return to your
 Puppet server system.
 
     exit
@@ -185,7 +181,7 @@ It's always good practice to validate your code before you try to apply it. Use
 the `puppet parser` tool to check the syntax of your new manifest.
 
     puppet parser validate cowsay/manifests/init.pp
-	
+
 The parser will return nothing if there are no errors. If it does detect a
 syntax error, open the file again and fix the problem before continuing. Be
 aware that this validation can only catch simple syntax errors and won't let
@@ -197,7 +193,7 @@ you apply the `cowsay` class to a node.
 
 <div class = "lvm-task-number"><p>Task 4:</p></div>
 
-In the setup for this quest, the quest tool prepared a `cowsay.puppet.vm`
+In the setup for this quest, the quest tool prepared a `node-x.internal.cloudapp.net`
 node. Let's apply the `cowsay` class to this node. First, open your `site.pp`
 manifest.
 
@@ -208,7 +204,7 @@ At the end of the `site.pp` manifest, insert the following code:
 [//]: # (code/040_manifests_and_classes/manifests/site.pp)
 
 ```puppet
-node 'cowsay.puppet.vm' {
+node 'node-x.internal.cloudapp.net' {
   include cowsay
 }
 ```
@@ -216,15 +212,15 @@ node 'cowsay.puppet.vm' {
 Save and exit.
 
 This `include cowsay` line tells the Puppet server to parse the contents of the
-`cowsay` class when it compiles a catalog for the `cowsay.puppet.vm` node.
+`cowsay` class when it compiles a catalog for the `node-x.internal.cloudapp.net` node.
 
 <div class = "lvm-task-number"><p>Task 5:</p></div>
 
 Now that you've added the `cowsay` class to your classification for the
-`cowsay.puppet.vm` node, let's connect to that node and trigger a Puppet agent
+`node-x.internal.cloudapp.net` node, let's connect to that node and trigger a Puppet agent
 run to see the changes applied.
 
-    ssh learning@cowsay.puppet.vm
+    ssh adminuser@node-x
 
 Before applying any changes to your system, it's always a good idea to use the
 `--noop` flag to do a practice run of the Puppet agent. This will compile the
@@ -237,7 +233,7 @@ chance to validate that Puppet will be making the changes you expect.
 
 You should see an output like the following:
 
-    Notice: Compiled catalog for cowsay.puppet.vm in environment production in
+    Notice: Compiled catalog for node-x.internal.cloudapp.net in environment production in
     0.62 seconds
     Notice: /Stage[main]/Cowsay/Package[cowsay]/ensure: current_value
     absent, should be present (noop)
@@ -277,7 +273,7 @@ on.
 
 <div class = "lvm-task-number"><p>Task 6:</p></div>
 
-Disconnect from the `cowsay.puppet.vm` node to return to your Puppet server.
+Disconnect from the `node-x.internal.cloudapp.net` node to return to your Puppet server.
 
     exit
 
@@ -315,7 +311,7 @@ command.
     puppet parser validate cowsay/manifests/fortune.pp
 
 We could use another include statement in the `site.pp` manifest to classify
-`cowsay.puppet.vm` with this `cowsay::fortune` class. In general, however, it's
+`node-x.internal.cloudapp.net` with this `cowsay::fortune` class. In general, however, it's
 best to keep your classification as simple as possible.
 
 In this case, use a class declaration to pull the `cowsay::fortune` class
@@ -343,9 +339,9 @@ Use the `puppet parser validate` command to check your syntax.
 
 <div class = "lvm-task-number"><p>Task 8:</p></div>
 
-Return to your `cowsay.puppet.vm` node so we can test out these changes.
+Return to your `node-x.internal.cloudapp.net` node so we can test out these changes.
 
-    ssh learning@cowsay.puppet.vm
+    ssh adminuser@node-x
 
 Trigger a Puppet agent run with the `--noop` flag to check what changes Puppet
 will make.
@@ -371,7 +367,7 @@ Now that you've seen the results of your Puppet run, disconnect to return to
 your Puppet server.
 
     exit
-	
+
 ## Review
 
 We began this quest with a discussion of the importance of keeping your Puppet

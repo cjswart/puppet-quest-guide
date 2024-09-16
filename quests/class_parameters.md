@@ -21,11 +21,8 @@ important variables without editing the module itself. This is done with
 that class with a set of parameter-value pairs similar to the resource
 declaration syntax. This gives you a way to customize all the important
 variables in your class without making any changes to the module that defines
-it. 
+it.
 
-When you're ready to get started, enter the following command:
-
-    quest begin class_parameters
 
 ## Writing a parameterized class
 
@@ -141,7 +138,7 @@ Unlike the `include` function, which can be used for the same class in multiple
 places, resource-like class declarations can only be used once per class.
 Because a class declared with the `include` uses defaults, it will always be
 parsed into the same set of resources in your catalog. This means that Puppet
-can safely handle multiple `include` calls for the same class. Because 
+can safely handle multiple `include` calls for the same class. Because
 multiple resource-like class declarations are not guaranteed to lead to the same
 set of resources, Puppet has no unambiguous way to handle multiple
 resource-like declarations of the same class. Attempting to make multiple
@@ -166,7 +163,7 @@ Open your `site.pp` manifest.
 
     vim /etc/puppetlabs/code/environments/production/manifests/site.pp
 
-Modify your node definition for `pasture.puppet.vm` to include a
+Modify your node definition for `node-x.internal.cloudapp.net` to include a
 resource-like class declaration. We'll set the `default_character` parameter
 to the string `'cow'`, and leave the other two parameters unset, letting them
 take their default values.
@@ -174,7 +171,7 @@ take their default values.
 [//]: # (code/070_class_parameters/manifests/site.pp)
 
 ```puppet
-node 'pasture.puppet.vm' {
+node 'node-x.internal.cloudapp.net' {
   class { 'pasture':
     default_character => 'cow',
   }
@@ -189,9 +186,9 @@ single set of parameters and values.
 
 <div class = "lvm-task-number"><p>Task 3:</p></div>
 
-Let's connect to the `pasture.puppet.vm` node.
+Let's connect to the `node-x.internal.cloudapp.net` node.
 
-    ssh learning@pasture.puppet.vm
+    ssh adminuser@node-x
 
 And trigger a Puppet agent run to apply this parameterized class.
 
@@ -203,7 +200,7 @@ When the run is complete, return to the Puppet server.
 
 And check that your configuration changes have taken effect.
 
-    curl 'pasture.puppet.vm/api/v1/cowsay?message=Hello!'
+    curl 'node-x.internal.cloudapp.net/api/v1/cowsay?message=Hello!'
 
 ## Review
 

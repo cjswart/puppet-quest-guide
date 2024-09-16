@@ -24,10 +24,6 @@ the next quest, you will see how they can be used along with *conditional
 statements* to let you write Puppet code that will behave differently in
 different contexts.
 
-To start this quest enter the following command:
-
-    quest begin facts
-
 ## Facter
 
 You already encountered the `facter` tool when we asked you to run `facter
@@ -45,14 +41,14 @@ and how they're structured.
 
 First, connect to the agent node prepared for this quest.
 
-    ssh learning@pasture.puppet.vm
+    ssh adminuser@node-x
 
 You can access a standard set of facts with the `facter` command. Adding the
 `-p` flag will include any custom facts that you may have installed on the
 Puppet server and synchronized with the agent during the pluginsync step of a
 Puppet run. We'll pass this `facter -p` command to `less` so you can scroll
 through the output in your terminal.
-	
+
     facter -p | less
 
 When you're done, press `q` to quit `less`.
@@ -169,17 +165,17 @@ This is a <%= $os_family %> system running <%= $os_name %> <%= $os_release %>
 <div class = "lvm-task-number"><p>Task 5:</p></div>
 
 With this template set, your simple MOTD module is complete. Open your
-`site.pp` manifest to assign it to the `pasture.puppet.vm` node. 
+`site.pp` manifest to assign it to the `node-x.internal.cloudapp.net` node.
 
     vim /etc/puppetlabs/code/environments/production/manifests/site.pp
 
 We're not using any parameters, so we'll use the `include` function to add the
-`motd` class to the `pasture.puppet.vm` node definition.
+`motd` class to the `node-x.internal.cloudapp.net` node definition.
 
 [//]: # (code/080_facts/manifests/site.pp)
 
 ```puppet
-node 'pasture.puppet.vm' {
+node 'node-x.internal.cloudapp.net' {
   include motd
   class { 'pasture':
     default_character => 'cow',
@@ -189,21 +185,21 @@ node 'pasture.puppet.vm' {
 
 <div class = "lvm-task-number"><p>Task 6:</p></div>
 
-Once this is complete, connect again to the `pasture.puppet.vm` node.
+Once this is complete, connect again to the `node-x.internal.cloudapp.net` node.
 
-    ssh learning@pasture.puppet.vm
+    ssh adminuser@node-x
 
 Then, trigger a Puppet agent run.
 
     sudo puppet agent -t
 
-To see the MOTD, first disconnect from `pasture.puppet.vm`.
+To see the MOTD, first disconnect from `node-x.internal.cloudapp.net`.
 
     exit
 
 Now reconnect.
 
-    ssh learning@pasture.puppet.vm
+    ssh adminuser@node-x
 
 Once you've had a chance to admire the MOTD, return to the Puppet server.
 

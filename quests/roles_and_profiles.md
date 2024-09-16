@@ -45,9 +45,6 @@ roles and profiles pattern. Even if this is your ultimate conclusion, however,
 your divergences should be well reasoned and based on a strong understanding of
 the high-level abstraction that the roles and profiles pattern provides.
 
-When you're ready to get started, enter the following command:
-
-    quest begin roles_and_profiles
 
 ## What are roles and profiles?
 

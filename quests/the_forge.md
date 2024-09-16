@@ -13,10 +13,6 @@
 In this quest, we'll introduce you to the Forge, a repository for modules
 written and maintained by the Puppet community.
 
-When you're ready to get started, enter the following command:
-
-    quest begin the_forge
-
 ## What is the Forge?
 
 The [Puppet Forge](https://forge.puppet.com) is a public repository for Puppet modules.
@@ -99,9 +95,7 @@ the Puppetfile and code management workflow
 On your Puppet server, go ahead and use the `puppet module` tool to install this
 module.
 
-    puppet module install puppetlabs-postgresql --version 5.12.1 --ignore-dependencies
-
-(Use --ignore-dependencies for backwards compatibilty)  
+    puppet module install puppetlabs-postgresql
 
 To confirm that this command placed the module in your modulepath, take a look
 at the contents of your modules directory.
@@ -161,7 +155,7 @@ class pasture::db {
     type        => 'host',
     database    => 'pasture',
     user        => 'pasture',
-    address     => '172.18.0.2/24',
+    address     => '10.0.1.0/24',
     auth_method => 'password',
   }
 
@@ -186,15 +180,15 @@ the `pasture::db` class.
 [//]: # (code/100_the_forge/manifests/site.pp.1)
 
 ```puppet
-node 'pasture-db.puppet.vm' {
+node 'node-x.internal.cloudapp.net' {
   include pasture::db
 }
 ```
 
 Use the `puppet job` tool to trigger a Puppet agent run on this
-`pasture-db.puppet.vm` node.
+`node-x.internal.cloudapp.net` node.
 
-    puppet job run --nodes pasture-db.puppet.vm
+    puppet job run --nodes node-x.internal.cloudapp.net
 
 Now that this database server is set up, let's add a parameter to our main
 pasture class to specify a database URI and pass this through to the
@@ -296,20 +290,20 @@ statement to only include the `:db:` setting if there is a value other than
 ```
 
 Now that you've set up this `db` parameter, edit your
-`pasture-app.puppet.vm` node definition.
+`node-x.internal.cloudapp.net` node definition.
 
     vim /etc/puppetlabs/code/environments/production/manifests/site.pp
 
 Declare the `pasture` class and set the `db` parameter to the URI of the
-`pasture` database you're running on `pasture-db.puppet.vm`.
+`pasture` database you're running on `node-x.internal.cloudapp.net`.
 
 [//]: # (code/100_the_forge/manifests/site.pp.2)
 
 ```puppet
-node 'pasture-app.puppet.vm' {
+node 'node-x.internal.cloudapp.net' {
   class { 'pasture':
     sinatra_server => 'thin',
-    db             => 'postgres://pasture:m00m00@pasture-db.puppet.vm/pasture',
+    db             => 'postgres://pasture:m00m00@node-1.internal.cloudapp.net/pasture',
   }
 }
 ```
@@ -318,23 +312,25 @@ node 'pasture-app.puppet.vm' {
 
 Use the `puppet job` tool to trigger an agent run on this node.
 
-    puppet job run --nodes pasture-app.puppet.vm
+    puppet job run --nodes node-1.internal.cloudapp.net
 
 With your database server set up and your application server connected to it,
 you can now add sayings to the application's database and retrieve them by
 ID. Let's give it a try.
 
+Note:  Be awere that we only have one node so we installed the application and database on the same server
+
 First, post the message 'Hello!' to your database.
 
-    curl -X POST 'pasture-app.puppet.vm/api/v1/cowsay/sayings?message=Hello!'
+    curl -X POST 'node-1.internal.cloudapp.net/api/v1/cowsay/sayings?message=Hello!'
 
 Now let's take a look at the list of available messages:
 
-    curl 'pasture-app.puppet.vm/api/v1/cowsay/sayings'
+    curl 'node-1.internal.cloudapp.net/api/v1/cowsay/sayings'
 
 Finally, we retrieve a message by ID:
 
-    curl 'pasture-app.puppet.vm/api/v1/cowsay/sayings/1'
+    curl 'node-1.internal.cloudapp.net/api/v1/cowsay/sayings/1'
 
 ## Review
 

@@ -21,9 +21,6 @@ as you work through the rest of this quest guide, you'll see that variables
 are used along with many of Puppet's other features to help write adaptable
 Puppet code.
 
-When you're ready to get started, enter the following command:
-
-    quest begin variables_and_templates
 
 ## Variables
 
@@ -362,7 +359,7 @@ process for you. Though this is a new system, it has the same name as the one
 you were working on in the previous quest, so the classification in your `site.pp`
 manifest will still apply.
 
-    ssh learning@pasture.puppet.vm
+    ssh adminuser@node-x
 
 Trigger a Puppet agent run.
 
@@ -381,7 +378,7 @@ session on the Learning VM itself.
 Use the `curl` command again to see that your changes to the defaults have
 taken effect.
 
-    curl 'pasture.puppet.vm/api/v1/cowsay?message=Hello!'
+    curl 'node-x.internal.cloudapp.net/api/v1/cowsay?message=Hello!'
 
 ## Review
 

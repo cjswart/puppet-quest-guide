@@ -16,10 +16,6 @@ to invoke commands on one or more target nodes. It is well-suited to
 performing actions in an ad hoc manner instead of managing a node on a
 long-term basis.
 
-Ready to get started? Run the following command on your Learning VM to begin
-this quest:
-
-    quest begin hello_bolt
 
 ## Install Bolt
 
@@ -30,7 +26,7 @@ SUSE, Debian, Ubuntu, and Fedora distributions, as well as Windows and macOS.
 The Learning VM is based on a CentOS (Red Hat Enterprise Linux equivalent)
 7 image, so run the following command to configure the Puppet YUM repository:
 
-    rpm -Uvh https://yum.puppet.com/puppet-tools-release-el-7.noarch.rpm
+    rpm -Uvh https://yum.puppet.com/puppet-tools-release-el-9.noarch.rpm
 
 **NOTE:** If your Learning VM is configured with a host-only network, the
 previous command will fail, but the `puppet-bolt` package has been cached for
@@ -81,58 +77,55 @@ output.
 
 Bolt is better suited to running commands on one or more remote nodes so the
 output can be collected and potentially acted upon by another tool. And instead
-of using a tool like ssh in a `for` loop, you provide a list of nodes to Bolt,
+of using a tool like ssh in a `for` loop, you provide a list of nodes to Bolt from the inventory file,
 and it will connect to each one and run the desired command. Now let's
-try some examples using a Docker-hosted machine as target node:
+try some examples using a target node:
 
-    bolt command run hostname --targets docker://bolt.puppet.vm
+    cd /etc/puppetlabs/bolt    (location of the inventory file)
 
-    bolt command run 'cat /etc/hosts' --targets docker://bolt.puppet.vm
+    bolt command run hostname --targets node-x  (x is the number of your node)
+
+    bolt command run 'cat /etc/hosts' --targets node-x
 
 The output from these commands will look similar to the following:
 
 ```
-Started on bolt.puppet.vm...
-Finished on bolt.puppet.vm:
-  STDOUT:
-    bolt.puppet.vm
-Successful on 1 node: docker://bolt.puppet.vm
-Ran on 1 node in 0.05 seconds
+Started on node-1.internal.cloudapp.net...
+Finished on node-1.internal.cloudapp.net:
+  node-1.internal.cloudapp.net                                                                                                                                                                          Successful on 1 target: node-1.internal.cloudapp.net
+Ran on 1 target in 0.68 sec
 ```
 
 ```
-Started on bolt.puppet.vm...
-Finished on bolt.puppet.vm:
-  STDOUT:
-    127.0.0.1   localhost
-    ::1 localhost ip6-localhost ip6-loopback
-    fe00::0     ip6-localnet
-    ff00::0     ip6-mcastprefix
-    ff02::1     ip6-allnodes
-    ff02::2     ip6-allrouters
-    172.18.0.1  learning.puppetlabs.vm puppet
-    172.18.0.2  bolt.puppet.vm bolt
-Successful on 1 node: docker://bolt.puppet.vm
-Ran on 1 node in 0.05 seconds
+Started on node-1.internal.cloudapp.net...
+Finished on node-1.internal.cloudapp.net:
+  127.0.0.1   node-1 node-1.internal.cloudapp.net localhost localhost.localdomain localhost4
+  ::2 localhost localhost.localdomain localhost6 localhost6.localdomain6
+  10.0.1.11 puppet puppetmaster-1                                                                                                                                                                       Successful on 1 target: node-1.internal.cloudapp.net
+Ran on 1 target in 0.62 sec
 ```
 
 Perhaps you want to generate machine-parseable output. That is also possible
 by using the `--format` option to the `bolt` command like so:
 
-    bolt --format json command run 'cat /etc/hosts' --targets docker://bolt.puppet.vm
+    bolt --format json command run 'cat /etc/hosts' --targets node-1
 
 And the output will look similar to the following:
 
 ```
 { "items": [
-{"node":"docker://bolt.puppet.vm","status":"success","result":{"stdout":"127.0.0.1\tlocalhost\n::1\tlocalhost ip6-localhost ip6-loopback\nfe00::0\tip6-localnet\nff00::0\tip6-mcastprefix\nff02::1\tip6-allnodes\nff02::2\tip6-allrouters\n172.18.0.1\tlearning.puppetlabs.vm puppet\n172.18.0.2\tbolt.puppet.vm bolt\n","stderr":"","exit_code":0}}
+{"target":"node-1.internal.cloudapp.net","action":"command","object":"cat /etc/hosts","status":"success","value":{"stdout":"127.0.0.1   node-1 node-1.internal.cloudapp.net localhost localhost.localdomain localhost4\n::2 localhost localhost.localdomain localhost6 localhost6.localdomain6\n10.0.1.11 puppet puppetmaster-1 \n","stderr":"","merged_output":"127.0.0.1   node-1 node-1.internal.cloudapp.net localhost localhost.localdomain localhost4\n::2 localhost localhost.localdomain localhost6 localhost6.localdomain6\n10.0.1.11 puppet puppetmaster-1 \n","exit_code":0}}
 ],
-"node_count": 1, "elapsed_time": 0 }
+"target_count": 1, "elapsed_time": 0 }
 ```
 
 The output can then be piped into a JSON query tool, such as `jq`, for
-further processing. There are a number of other useful bolt command-line
+further processing.
+bolt --format json command run 'cat /etc/hosts' --targets node-1| jq .
+
+There are a number of other useful bolt command-line
 options, and you can see them by running `bolt --help`.
+
 
 ## Review
 

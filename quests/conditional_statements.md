@@ -12,9 +12,6 @@
 In this quest, we'll discuss **conditional statements.** Conditional statements let
 you write Puppet code that will behave differently in different contexts.
 
-To start this quest enter the following command:
-
-    quest begin conditional_statements
 
 ## Writing for flexibility
 
@@ -79,13 +76,13 @@ installed.
 
 Now that you've seen this real-world example of how and why a conditional
 statement can be used to create more flexible Puppet code, let's take a moment
-to discuss how these statements work and how to write them. 
+to discuss how these statements work and how to write them.
 
 Conditional statements return different values or execute different blocks of
 code depending on the value of a specified variable.
 
 Puppet supports a few different ways of implementing conditional logic:
- 
+
  * `if` statements,
  * `unless` statements,
  * case statements, and
@@ -270,12 +267,12 @@ for different agent nodes in your infrastructure. For example, you may want to
 use the default WEBrick server on a development system and the Thin server on
 for production.
 
-We created two new systems for this quest: `pasture-dev.puppet.vm` and
-`pasture-prod.puppet.vm`. For a more complex infrastructure, you would likely
+We only test this with one node node-x.internal.cloudapp.net
+For a more complex infrastructure, you would likely
 manage your development, test, and production segments of your infrastructure
 by creating a distinct [environment](https://puppet.com/docs/puppet/latest/environments_about.html)
 for each. For now, however, we can easily demonstrate our conditional statement
-by setting up two different node definitions in the `site.pp` manifest.
+by setting up only the production node definitions in the `site.pp` manifest.
 
 <div class = "lvm-task-number"><p>Task 4:</p></div>
 
@@ -284,10 +281,7 @@ by setting up two different node definitions in the `site.pp` manifest.
 [//]: # (code/090_conditional_statements/manifests/site.pp)
 
 ```puppet
-node 'pasture-dev.puppet.vm' {
-  include pasture
-}
-node 'pasture-prod.puppet.vm' {
+node 'node-x.internal.cloudapp.net' {
   class { 'pasture':
     sinatra_server => 'thin',
   }
@@ -317,7 +311,7 @@ option to proceed.)
 
 Use the following credentials to log in:
 
-Username: **admin**  
+Username: **admin**
 Password: **puppetlabs**
 
 Once you're connected, click the **Access control** menu option in the
@@ -345,48 +339,18 @@ re-authenticating as you work.
 
 When prompted, supply the username **learning** and password **puppet**.
 
-Now you can trigger Puppet agent runs on `pasture-dev.puppet.vm` and
-`pasture-prod.puppet.vm` with the `puppet job` tool. We provide the names of
-the two nodes in a comma-separated list after the `--nodes` flag. (Note that
+Now you can trigger Puppet agent runs on `node-x.internal.cloudapp.net` with the `puppet job` tool.
+We only test witj one node but you can provide the names of the multiple nodes in a comma-separated list after the `--nodes` flag. (Note that
 there is no space between the node names, which can make it a little hard to
 tell the difference between a comma that separates node names and the dots in
 the node names themselves.)
 
-    puppet job run --nodes pasture-dev.puppet.vm,pasture-prod.puppet.vm
+    puppet job run --nodes node-x.internal.cloudapp.net
 
-When the jobs complete, take a moment to check each with a `curl` command.
+When the jobs complete, take a moment to check with a `curl` command.
 
-    curl 'pasture-dev.puppet.vm/api/v1/cowsay?message=Hello!'
+    curl 'node-x.internal.cloudapp.net/api/v1/cowsay?message=Hello!'
 
-and
-
-    curl 'pasture-prod.puppet.vm/api/v1/cowsay?message=Hello!'
-
-To verify that each system is running the server you specified, you can log
-in and use the `journalctl` command to check the service's startup log.
-
-    ssh learning@pasture-dev.puppet.vm
-
-And run
-
-    journalctl -u pasture
-
-Disconnect from `pasture-dev`
-
-    exit
-
-And connect to the next system:
-
-    ssh learning@pasture-prod.puppet.vm
-
-Check the log here as well:
-
-    journalctl -u pasture
-
-Now that you've verified that each node is running the expected server,
-disconnect to return to the Learning VM.
-
-    exit
 
 ## Review
 

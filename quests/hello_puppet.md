@@ -17,10 +17,6 @@ installed on a new system, you will use the `puppet resource` tool to explore
 the state of that system. Through this tool, you will learn about *resources*,
 the basic units that Puppet uses to describe and manage a system.
 
-Ready to get started? Run the following command on your Learning VM to begin
-this quest:
-
-    quest begin hello_puppet
 
 ## What is Puppet?
 
@@ -99,10 +95,9 @@ modifies the state of the system where it's running.
 
 ## Agent installation
 
-The Learning VM itself has Puppet Enterprise
-pre-installed, including the Puppet server service. For each quest, the quest
-tool provides one or more agent systems that you explore and configure
-with Puppet.
+The Learning VM itself has Puppet Enterprise pre-installed, including the Puppet server service.
+For each quest, we have provided a quest system where we will install the puppet agent.
+The puppet agent is needed to explore and configure your system with Puppet.
 
 For this quest, there is a fresh system where you can install the Puppet
 agent and explore some of the tools it provides. The Puppet server hosts an
@@ -113,8 +108,11 @@ system that can access the Puppet server.
 
 To get started, use the `bolt` tool that was introduced in the previous quest. Copy and run the following command to
 load the agent installer from the Puppet server and run it on the agent system:
+be sure to stand in the directory with the inventory file
 
-    bolt command run "sh -c 'curl -k https://puppet:8140/packages/current/install.bash | sudo bash'" --targets docker://hello.puppet.vm
+    cd /etc/puppetlabs/bolt
+
+    bolt command run "sh -c 'curl -k https://puppet:8140/packages/current/install.bash | sudo bash'" --targets node-1
 
 You will see text stream across the screen as the installation runs.
 
@@ -129,7 +127,7 @@ can use to explore your system. Now that the agent is
 installed, use these tools to see what they can teach you about how
 Puppet works.
 
-One of Puppet's core concepts is the *resource abstraction layer*. For Puppet, 
+One of Puppet's core concepts is the *resource abstraction layer*. For Puppet,
 each aspect of the system you want to manage (such as a
 user, file, service, or package) is represented in code as a unit called
 a *resource*. The `puppet resource` tool lets you view and modify these
@@ -137,11 +135,11 @@ resources directly.
 
 <div class = "lvm-task-number"><p>Task 2:</p></div>
 
-**username: learning**  
-**password: puppet**  
+**username: adminuser**
+**password: #BeterInternet**
 Using the following command, connect to the system where the agent was just installed. Enter the password `puppet` when prompted.
 
-    ssh learning@hello.puppet.vm
+    ssh adminuser@node-x
 
 Next run the following command to ask Puppet to describe a file resource:
 
@@ -168,7 +166,7 @@ type { 'title':
 
 The **type** is the kind of thing the resource describes. It can be a **core
 type** like a user, file, service, or package, or a **custom type** that you
-have implemented yourself or installed from a module. 
+have implemented yourself or installed from a module.
 
 Custom types
 describe resources that might be specific to a service or application (for
@@ -316,8 +314,8 @@ command:
 ```
 Error: Execution of '/bin/gem install --no-rdoc --no-ri bogus-package'
 returned 2: ERROR:  Could not find a valid gem 'bogus-package' (>= 0) in any repository
-Error: /Package[bogus-package]/ensure: change from absent to present failed: 
-Execution of '/bin/gem install --no-rdoc --no-ri bogus-package' returned 2: 
+Error: /Package[bogus-package]/ensure: change from absent to present failed:
+Execution of '/bin/gem install --no-rdoc --no-ri bogus-package' returned 2:
 ERROR:  Could not find a valid gem 'bogus-package' (>= 0) in any repository
 ```
 
@@ -331,7 +329,7 @@ This time, Puppet installs the package. The value of the
 
 ```puppet
 package { 'httpd':
-  ensure => '2.4.6-93.el7.centos',
+  ensure => '2.4.57-11.el9_4.1',
 }
 ```
 

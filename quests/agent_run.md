@@ -22,10 +22,6 @@ Puppet agent communicates with the Puppet server. We'll then write some
 Puppet code to a manifest on the Puppet server to begin defining a desired
 state for our agent system.
 
-Ready to get started? Run the following command on your Learning VM:
-
-    quest begin agent_run
-
 ## The agent/server architecture
 
 As we mentioned in the previous quest, Puppet is typically used in what's
@@ -34,7 +30,7 @@ called an agent/server (client/server) architecture.
 In this architecture, each managed node in your infrastructure runs a *Puppet
 agent* service. One or more servers (depending on the size and complexity of
 your infrastructure) act as *Puppet server(s)* and run the Puppet server
-service to handle communication with your agents. In a standard 
+service to handle communication with your agents. In a standard
 server installation, the Puppet server also hosts several supporting
 services such as the PE console services and PuppetDB. In larger deployments
 these services may be distributed across other servers to improve performance
@@ -110,10 +106,10 @@ one was created. This new system has the Puppet agent pre-installed, so there's
 no need to repeat the installation process. Connect to the new
 agent system with the same credentials you used in the last quest:
 
-**username: learning**  
-**password: puppet**
+**username: adminuser**
+**password: #BeterInternet**
 
-    ssh learning@agent.puppet.vm
+    ssh adminuser@node-x
 
 First, try to trigger a Puppet agent run without your agent system's certificate
 signed. The agent will attempt to contact the Puppet server, but its request
@@ -140,9 +136,9 @@ Use the `puppetserver ca` tool to list unsigned certificates:
 
     puppetserver ca list
 
-Sign the cert for `agent.puppet.vm`:
+Sign the cert for `node-x.internal.cloudapp.net`:
 
-    puppetserver ca sign --certname agent.puppet.vm
+    puppetserver ca sign --certname node-x.internal.cloudapp.net
 
 <div class = "lvm-task-number"><p>Task 3:</p></div>
 
@@ -159,7 +155,7 @@ command to manually trigger a run.
 
 Connect to your agent node:
 
-    ssh learning@agent.puppet.vm
+    ssh adminuser@node-x
 
 Trigger an agent run. Now that the agent's certificate is signed, it will
 receive a catalog from the Puppet server.
@@ -203,13 +199,13 @@ during this run.
 ## Classification
 
 To make something more interesting happen, you'll have to specify a desired
-state for some resources on the `agent.puppet.vm` system.
+state for some resources on the `node-x.internal.cloudapp.net` system.
 
 <div class = "lvm-task-number"><p>Task 4:</p></div>
 
 Remember, the Puppet code you use to describe how you want a node to be
 configured is kept on the Puppet server. End your SSH session on the
-`agent.puppet.vm` agent node to return to the Puppet server:
+`node-x.internal.cloudapp.net` agent node to return to the Puppet server:
 
     exit
 
@@ -256,11 +252,11 @@ Open your `site.pp` manifest:
 
 Scroll past the comments and default node definition to the bottom of the file.
 (In Vim, you can type `G` to jump the the bottom of a file) This is where
-you'll create a new node definition for the `agent.puppet.vm` system. The
+you'll create a new node definition for the `node-x.internal.cloudapp.net` system. The
 outline of the node definition should look like this:
 
 ```puppet
-node 'agent.puppet.vm' {
+node 'node-x.internal.cloudapp.net' {
 
 }
 ```
@@ -283,7 +279,7 @@ return to insert mode before pasting your text.)
 [//]: # (code/030_agent_run/manifests/site.pp)
 
 ```puppet
-node 'agent.puppet.vm' {
+node 'node-x.internal.cloudapp.net' {
   notify { 'Hello Puppet!': }
 }
 ```
