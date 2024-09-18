@@ -200,6 +200,7 @@ Return to your `init.pp` manifest.
 
 You can wrap a package resource in an `if` statement to tell your class to only
 manage the resource if the `$sinatra_server` variable is `thin` or `mongrel`.
+Note: You have to remove thin packages from the package array earlier defined
 
 Both of these servers are available as gems, so you will use the `gem`
 provider for the package.
@@ -221,44 +222,48 @@ class pasture (
   $sinatra_server      = 'webrick',
 ){
 
-  package { 'pasture':
+  package { ['pasture', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
     before   => File[$pasture_config_file],
   }
-
   $pasture_config_hash = {
     'port'              => $port,
     'default_character' => $default_character,
     'default_message'   => $default_message,
     'sinatra_server'    => $sinatra_server,
   }
-
   file { $pasture_config_file:
     content => epp('pasture/pasture_config.yaml.epp', $pasture_config_hash),
     notify  => Service['pasture'],
   }
-
   $pasture_service_hash = {
     'pasture_config_file' => $pasture_config_file,
   }
-
   file { '/etc/systemd/system/pasture.service':
     content => epp('pasture/pasture.service.epp', $pasture_service_hash),
     notify  => Service['pasture'],
   }
-
   service { 'pasture':
     ensure => running,
   }
-
   if ($sinatra_server == 'thin') or ($sinatra_server == 'mongrel')  {
     package { $sinatra_server:
       provider => 'gem',
       notify   => Service['pasture'],
     }
   }
-
+  firewalld_port { 'Open port 80 in the public zone':
+    ensure   => present,
+    zone     => 'public',
+    port     => 80,
+    protocol => 'tcp',
+    notify   => Exec['/usr/bin/systemctl restart firewalld']
+  }
+  exec { '/usr/bin/systemctl restart firewalld':
+    command   => '/usr/bin/systemctl restart firewalld',
+    subscribe => Firewalld_port['Open port 80 in the public zone'],
+  }
 }
 ```
 
