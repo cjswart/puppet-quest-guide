@@ -95,7 +95,7 @@ the Puppetfile and code management workflow
 On your Puppet server, go ahead and use the `puppet module` tool to install this
 module.
 
-    puppet module install puppetlabs-postgresql
+    puppet module install puppetlabs-postgresql --ignore-dependencies
 
 To confirm that this command placed the module in your modulepath, take a look
 at the contents of your modules directory.
@@ -218,12 +218,11 @@ class pasture (
   $db                  = 'none',
 ){
 
-  package { 'pasture':
+  package { ['pasture', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
     before   => File[$pasture_config_file],
   }
-
   $pasture_config_hash = {
     'port'              => $port,
     'default_character' => $default_character,
@@ -231,32 +230,37 @@ class pasture (
     'sinatra_server'    => $sinatra_server,
     'db'                => $db,
   }
-
   file { $pasture_config_file:
     content => epp('pasture/pasture_config.yaml.epp', $pasture_config_hash),
     notify  => Service['pasture'],
   }
-
   $pasture_service_hash = {
     'pasture_config_file' => $pasture_config_file,
   }
-
   file { '/etc/systemd/system/pasture.service':
     content => epp('pasture/pasture.service.epp', $pasture_service_hash),
     notify  => Service['pasture'],
   }
-
   service { 'pasture':
     ensure => running,
   }
-
   if ($sinatra_server == 'thin') or ($sinatra_server == 'mongrel')  {
     package { $sinatra_server:
       provider => 'gem',
       notify   => Service['pasture'],
     }
   }
-
+  firewalld_port { 'Open port 80 in the public zone':
+    ensure   => present,
+    zone     => 'public',
+    port     => 80,
+    protocol => 'tcp',
+    notify   => Exec['/usr/bin/systemctl restart firewalld']
+  }
+  exec { '/usr/bin/systemctl restart firewalld':
+    command   => '/usr/bin/systemctl restart firewalld',
+    subscribe => Firewalld_port['Open port 80 in the public zone'],
+  }
 }
 ```
 
@@ -303,7 +307,7 @@ Declare the `pasture` class and set the `db` parameter to the URI of the
 node 'node-x.internal.cloudapp.net' {
   class { 'pasture':
     sinatra_server => 'thin',
-    db             => 'postgres://pasture:m00m00@node-1.internal.cloudapp.net/pasture',
+    db             => 'postgres://pasture:m00m00@node-x.internal.cloudapp.net/pasture',
   }
 }
 ```
@@ -312,7 +316,7 @@ node 'node-x.internal.cloudapp.net' {
 
 Use the `puppet job` tool to trigger an agent run on this node.
 
-    puppet job run --nodes node-1.internal.cloudapp.net
+    puppet job run --nodes node-x.internal.cloudapp.net
 
 With your database server set up and your application server connected to it,
 you can now add sayings to the application's database and retrieve them by
@@ -322,15 +326,15 @@ Note:  Be awere that we only have one node so we installed the application and d
 
 First, post the message 'Hello!' to your database.
 
-    curl -X POST 'node-1.internal.cloudapp.net/api/v1/cowsay/sayings?message=Hello!'
+    curl -X POST 'node-x.internal.cloudapp.net/api/v1/cowsay/sayings?message=Hello!'
 
 Now let's take a look at the list of available messages:
 
-    curl 'node-1.internal.cloudapp.net/api/v1/cowsay/sayings'
+    curl 'node-x.internal.cloudapp.net/api/v1/cowsay/sayings'
 
 Finally, we retrieve a message by ID:
 
-    curl 'node-1.internal.cloudapp.net/api/v1/cowsay/sayings/1'
+    curl 'node-x.internal.cloudapp.net/api/v1/cowsay/sayings/1'
 
 ## Review
 
