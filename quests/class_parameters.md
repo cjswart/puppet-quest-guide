@@ -73,36 +73,41 @@ class pasture (
   $pasture_config_file = '/etc/pasture_config.yaml',
 ){
 
-  package { 'pasture':
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
     before   => File[$pasture_config_file],
   }
-
   $pasture_config_hash = {
     'port'              => $port,
     'default_character' => $default_character,
     'default_message'   => $default_message,
   }
-
   file { $pasture_config_file:
     content => epp('pasture/pasture_config.yaml.epp', $pasture_config_hash),
     notify  => Service['pasture'],
   }
-
   $pasture_service_hash = {
     'pasture_config_file' => $pasture_config_file,
   }
-
   file { '/etc/systemd/system/pasture.service':
     content => epp('pasture/pasture.service.epp', $pasture_service_hash),
     notify  => Service['pasture'],
   }
-
   service { 'pasture':
     ensure => running,
   }
-
+  firewalld_port { 'Open port 80 in the public zone':
+    ensure   => present,
+    zone     => 'public',
+    port     => 80,
+    protocol => 'tcp',
+    notify   => Exec['/usr/bin/systemctl restart firewalld']
+  }
+  exec { '/usr/bin/systemctl restart firewalld':
+    command   => '/usr/bin/systemctl restart firewalld',
+    subscribe => Firewalld_port['Open port 80 in the public zone'],
+  }
 }
 ```
 
