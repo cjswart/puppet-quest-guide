@@ -313,7 +313,7 @@ agent, trigger another Puppet run.
 
 SSH to your agent node:
 
-    ssh learning@agent.puppet.vm
+    ssh adminuser@node-x
 
 Use the `puppet agent` tool to trigger a Puppet run:
 

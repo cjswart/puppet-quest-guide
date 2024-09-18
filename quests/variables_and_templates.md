@@ -74,21 +74,35 @@ class pasture {
   $default_message     = ''
   $pasture_config_file = '/etc/pasture_config.yaml'
 
-  package { 'pasture':
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
-    before   => File[$pasture_config_file],
+    before   => File['/etc/pasture_config.yaml'],
   }
-  file { $pasture_config_file:
-    source => 'puppet:///modules/pasture/pasture_config.yaml',
-    notify => Service['pasture'],
+
+  file { '/etc/pasture_config.yaml':
+    source  => 'puppet:///modules/pasture/pasture_config.yaml',
+    notify  => Service['pasture'],
   }
+
   file { '/etc/systemd/system/pasture.service':
-    source => 'puppet:///modules/pasture/pasture.service',
-    notify => Service['pasture'],
+    source  => 'puppet:///modules/pasture/pasture.service',
+    notify  => Service['pasture'],
   }
+
   service { 'pasture':
     ensure => running,
+  }
+  firewalld_port { 'Open port 80 in the public zone':
+    ensure   => present,
+    zone     => 'public',
+    port     => 80,
+    protocol => 'tcp',
+    notify   => Exec['/usr/bin/systemctl restart firewalld']
+  }
+  exec { '/usr/bin/systemctl restart firewalld':
+    command   => '/usr/bin/systemctl restart firewalld',
+    subscribe => Firewalld_port['Open port 80 in the public zone'],
   }
 }
 ```
@@ -98,6 +112,7 @@ variables. To use these, we need a way to pass them into our configuration
 file. We'll also need to pass the `$pasture_config_file` variable to our
 service unit file so the service will start our Pasture process with the
 configuration file we specify if we change it to something other than the default.
+Notice the firewall rule for port 80 now.
 
 ## Templates
 
@@ -241,7 +256,7 @@ class pasture {
   $default_message     = ''
   $pasture_config_file = '/etc/pasture_config.yaml'
 
-  package { 'pasture':
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
     before   => File[$pasture_config_file],
@@ -255,14 +270,28 @@ class pasture {
     content => epp('pasture/pasture_config.yaml.epp', $pasture_config_hash),
     notify  => Service['pasture'],
   }
+
   file { '/etc/systemd/system/pasture.service':
-    source => 'puppet:///modules/pasture/pasture.service',
-    notify => Service['pasture'],
+    source  => 'puppet:///modules/pasture/pasture.service',
+    notify  => Service['pasture'],
   }
+
   service { 'pasture':
     ensure => running,
   }
+  firewalld_port { 'Open port 80 in the public zone':
+    ensure   => present,
+    zone     => 'public',
+    port     => 80,
+    protocol => 'tcp',
+    notify   => Exec['/usr/bin/systemctl restart firewalld']
+  }
+  exec { '/usr/bin/systemctl restart firewalld':
+    command   => '/usr/bin/systemctl restart firewalld',
+    subscribe => Firewalld_port['Open port 80 in the public zone'],
+  }
 }
+
 ```
 
 Now that that's set, we can repeat the process for the service unit file.
@@ -319,7 +348,7 @@ class pasture {
   $default_message     = ''
   $pasture_config_file = '/etc/pasture_config.yaml'
 
-  package { 'pasture':
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
     before   => File[$pasture_config_file],
@@ -342,6 +371,17 @@ class pasture {
   }
   service { 'pasture':
     ensure => running,
+  }
+  firewalld_port { 'Open port 80 in the public zone':
+    ensure   => present,
+    zone     => 'public',
+    port     => 80,
+    protocol => 'tcp',
+    notify   => Exec['/usr/bin/systemctl restart firewalld']
+  }
+  exec { '/usr/bin/systemctl restart firewalld':
+    command   => '/usr/bin/systemctl restart firewalld',
+    subscribe => Firewalld_port['Open port 80 in the public zone'],
   }
 }
 ```

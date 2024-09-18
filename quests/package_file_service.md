@@ -63,11 +63,11 @@ class.
     vim pasture/manifests/init.pp
 
 So far, this should look just like the `cowsay` class, except that the package
-resource will manage the `pasture` package instead of `cowsay`.
+resource will manage the `pasture` package instead of `cowsay`. (and some required packages for pasture whicj can be specified as an array for the package resource)
 
 ```puppet
 class pasture {
-  package { 'pasture':
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => gem,
   }
@@ -207,7 +207,7 @@ And add a file resource declaration.
 ```puppet
 class pasture {
 
-  package { 'pasture':
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
   }
@@ -268,7 +268,7 @@ First, add a file resource to manage your service unit file.
 ```puppet
 class pasture {
 
-  package { 'pasture':
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
   }
@@ -290,7 +290,7 @@ Next, add the `service` resource itself. This resource will have the title
 ```puppet
 class pasture {
 
-  package { 'pasture':
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
   }
@@ -355,7 +355,7 @@ what each of these relationship metaparameters does and why.
 ```puppet
 class pasture {
 
-  package { 'pasture':
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
     ensure   => present,
     provider => 'gem',
     before   => File['/etc/pasture_config.yaml'],
@@ -407,6 +407,73 @@ From the server, use the `curl` command to retrieve an ASCII elephant from
 port 4567 of the `node-x.internal.cloudapp.net` node.
 
     curl 'node-x.internal.cloudapp.net:4567/api/v1/cowsay?message=Hello!'
+
+We got an error: curl: (7) Failed to connect to node-x.internal.cloudapp.net port 4567 after 2 ms: Couldn't connect to server
+We have to configure a firewall rule to allow access to port 4567 from a remote server
+
+    vim pasture/manifests/init.pp
+
+```puppet
+class pasture {
+
+  package { ['pasture', 'thin', 'puma', 'reel', 'http', 'webrick']:
+    ensure   => present,
+    provider => 'gem',
+    before   => File['/etc/pasture_config.yaml'],
+  }
+
+  file { '/etc/pasture_config.yaml':
+    source  => 'puppet:///modules/pasture/pasture_config.yaml',
+    notify  => Service['pasture'],
+  }
+
+  file { '/etc/systemd/system/pasture.service':
+    source  => 'puppet:///modules/pasture/pasture.service',
+    notify  => Service['pasture'],
+  }
+
+  service { 'pasture':
+    ensure => running,
+  }
+  firewalld_port { 'Open port 4567 in the public zone':
+    ensure   => present,
+    zone     => 'public',
+    port     => 4567,
+    protocol => 'tcp',
+    notify   => Exec['/usr/bin/systemctl restart firewalld']
+  }
+  exec { '/usr/bin/systemctl restart firewalld':
+    command   => '/usr/bin/systemctl restart firewalld',
+    subscribe => Firewalld_port['Open port 4567 in the public zone'],
+  }
+
+}
+```
+
+When you're finished, check your syntax one more time with the `puppet parser`
+tool.
+
+    puppet parser validate pasture/manifests/init.pp
+
+Go ahead and connect to `node-x.internal.cloudapp.net`.
+
+    ssh adminuser@node-x.internal.cloudapp.net
+
+And trigger another Puppet agent run.
+
+    sudo puppet agent -t
+
+Now that the firewall rule is configured  disconnect from the
+agent node.
+
+    exit
+
+From the server, use the `curl` command to retrieve an ASCII elephant from
+port 4567 of the `node-x.internal.cloudapp.net` node.
+
+    curl 'node-x.internal.cloudapp.net:4567/api/v1/cowsay?message=Hello!'
+
+
 
 ## Review
 
