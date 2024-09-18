@@ -112,7 +112,9 @@ be sure to stand in the directory with the inventory file
 
     cd /etc/puppetlabs/bolt
 
-    bolt command run "sh -c 'curl -k https://puppet:8140/packages/current/install.bash | sudo bash'" --targets node-1
+    bolt command run "sh -c 'curl -k https://puppet:8140/packages/current/install.bash | sudo bash'" --targets node-x
+
+    NOTE: change targets to your own node
 
 You will see text stream across the screen as the installation runs.
 

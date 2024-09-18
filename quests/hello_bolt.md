@@ -108,7 +108,7 @@ Ran on 1 target in 0.62 sec
 Perhaps you want to generate machine-parseable output. That is also possible
 by using the `--format` option to the `bolt` command like so:
 
-    bolt --format json command run 'cat /etc/hosts' --targets node-1
+    bolt --format json command run 'cat /etc/hosts' --targets node-x
 
 And the output will look similar to the following:
 
@@ -121,7 +121,7 @@ And the output will look similar to the following:
 
 The output can then be piped into a JSON query tool, such as `jq`, for
 further processing.
-bolt --format json command run 'cat /etc/hosts' --targets node-1| jq .
+bolt --format json command run 'cat /etc/hosts' --targets node-x| jq .
 
 There are a number of other useful bolt command-line
 options, and you can see them by running `bolt --help`.
