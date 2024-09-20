@@ -42,11 +42,11 @@ Simplified to show only the values we're concerned with, the conditional
 statement looks like this:
 
 ```puppet
-if $::osfamily == 'RedHat' {
+if $facts['os']['family'] == 'RedHat' {
   ...
   $apache_name = 'httpd'
   ...
-} elsif $::osfamily == 'Debian' {
+} elsif $facts['os']['family'] == 'Debian' {
   ...
   $apache_name = 'apache2'
   ...
@@ -351,6 +351,12 @@ tell the difference between a comma that separates node names and the dots in
 the node names themselves.)
 
     puppet job run --nodes node-x.internal.cloudapp.net
+
+When you get error:
+Error running puppet on node-x.internal.cloudapp.net: This node (node-4.internal.cloudapp.net) does not have a connection type that supports running Puppet.
+You need to start the pxp-agent on the node
+
+    bolt command run 'systemctl restart pxp-agent'
 
 When the jobs complete, take a moment to check with a `curl` command.
 
